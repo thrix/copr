@@ -17,11 +17,6 @@
     with_pulp: false
 
   pre_tasks:
-    - name: Install Python libraries needed by community.crypto and community.postgresql
-      ansible.builtin.command: >-
-        {{ ansible_python_interpreter }} -m pip install --only-binary :all: cryptography psycopg2-binary
-      changed_when: true
-
     - name: Detect public IP address
       ansible.builtin.uri:
         url: https://ifconfig.me/ip
@@ -40,7 +35,10 @@
 
   roles:
     - pre-release-packages
-    - credentials
+    # community.crypto needs python3-cryptography, available only for the system Python
+    - role: credentials
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
     - ca-trust
     - resalloc
     - distgit

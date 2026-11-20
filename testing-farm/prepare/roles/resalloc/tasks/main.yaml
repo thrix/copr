@@ -13,6 +13,9 @@
     state: present
   become: true
   become_user: postgres
+  vars:
+    # psycopg2 is available only for the system Python
+    ansible_python_interpreter: /usr/bin/python3
 
 - name: Create PostgreSQL database 'resalloc' owned by 'resalloc'
   community.postgresql.postgresql_db:
@@ -21,6 +24,9 @@
     state: present
   become: true
   become_user: postgres
+  vars:
+    # psycopg2 is available only for the system Python
+    ansible_python_interpreter: /usr/bin/python3
   register: db_created
 
 - name: Configure Resalloc Server

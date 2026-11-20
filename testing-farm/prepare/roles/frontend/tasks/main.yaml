@@ -35,6 +35,9 @@
     state: present
   become: true
   become_user: postgres
+  vars:
+    # psycopg2 is available only for the system Python
+    ansible_python_interpreter: /usr/bin/python3
 
 - name: Create PostgreSQL database 'copr-fe' owned by 'copr-fe'
   community.postgresql.postgresql_db:
@@ -43,6 +46,9 @@
     state: present
   become: true
   become_user: postgres
+  vars:
+    # psycopg2 is available only for the system Python
+    ansible_python_interpreter: /usr/bin/python3
   register: db_created
   tags:
     - frontend_init_database
