@@ -5,7 +5,11 @@
 
   vars:
     host_with_secrets: '{{ inventory_hostname }}'
-    ansible_python_interpreter: /usr/bin/python3
+    # ansible-core 2.16 `module_utils/urls.py` needs `ssl.PROTOCOL_TLSv1`, missing in the Fedora 45
+    # system Python. Use the Testing Farm standalone Python and its CLI-based package module instead.
+    # https://docs.testing-farm.io/Testing%20Farm/0.1/faq.html#_how_to_use_the_standalone_python_runtime
+    ansible_python_interpreter: /var/opt/standalone-python/bin/python3
+    ansible_package_use: testing_farm_profiles.library.dnf_yum_cli
     test_user: single-host-testing
     frontend_hostname: "{{ public_ip }}"
     backend_hostname: "{{ public_ip }}"
@@ -13,6 +17,11 @@
     with_pulp: false
 
   pre_tasks:
+    - name: Install Python libraries needed by community.crypto and community.postgresql
+      ansible.builtin.command: >-
+        {{ ansible_python_interpreter }} -m pip install --only-binary :all: cryptography psycopg2-binary
+      changed_when: true
+
     - name: Detect public IP address
       ansible.builtin.uri:
         url: https://ifconfig.me/ip
@@ -20,9 +29,6 @@
         headers:
           Accept: text/plain
       register: public_ip_result
-      vars:
-        # ansible-core 2.16 `module_utils/urls.py` needs `ssl.PROTOCOL_TLSv1`, missing on Fedora 45
-        ansible_python_interpreter: /var/opt/standalone-python/bin/python3
 
     - name: Set public_ip fact
       ansible.builtin.set_fact:
