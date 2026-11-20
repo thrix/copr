@@ -15,9 +15,10 @@
         pull_request_head_sha: "{{ (raw_pr_response.stdout | from_json).head.sha }}"
         pull_request_commits: "{{ (raw_pr_response.stdout | from_json).commits }}"
 
+# `community.general.copr` imports `module_utils/urls.py`, broken on Fedora 45 with ansible-core 2.16
 - name: pre-release copr packages
-  community.general.copr:
-    name: '@copr/copr-dev'
+  ansible.builtin.command: dnf -y copr enable @copr/copr-dev
+  changed_when: true
 
 - name: "avoid TF's priority hack"
   replace:

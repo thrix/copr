@@ -20,6 +20,9 @@
         headers:
           Accept: text/plain
       register: public_ip_result
+      vars:
+        # ansible-core 2.16 `module_utils/urls.py` needs `ssl.PROTOCOL_TLSv1`, missing on Fedora 45
+        ansible_python_interpreter: /var/opt/standalone-python/bin/python3
 
     - name: Set public_ip fact
       ansible.builtin.set_fact:
