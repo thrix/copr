@@ -16,12 +16,19 @@
     - /data/frontend
     - /data/frontend/srpm_storage
 
-- name: Set persistent SELinux context for /data/frontend
-  community.general.sefcontext:
-    target: /data/frontend(/.*)?
-    setype: copr_data_t
+# `community.general.sefcontext` fails with the standalone Python (`NameError: name 'audit' is not defined`)
+- name: Install semanage
+  package:
+    name:
+      - policycoreutils-python-utils
     state: present
+
+- name: Set persistent SELinux context for /data/frontend
+  ansible.builtin.shell: |
+    semanage fcontext -l -C | grep -qF '/data/frontend(/.*)?' && exit 0
+    semanage fcontext -a -t copr_data_t '/data/frontend(/.*)?' && echo changed
   register: fcontext_configured
+  changed_when: "'changed' in fcontext_configured.stdout"
 
 - name: . Apply SELinux context immediately
   # This command applies the context change immediately.
