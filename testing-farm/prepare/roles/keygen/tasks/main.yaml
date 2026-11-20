@@ -33,6 +33,9 @@
     name: copr
     groups: obsrun
     append: true
+  vars:
+    # `ansible.builtin.user` loads libc via ctypes, the static standalone Python cannot
+    ansible_python_interpreter: /usr/bin/python3
 
 - name: Create Apache conf.d snippet for localhost:8080
   ansible.builtin.copy:

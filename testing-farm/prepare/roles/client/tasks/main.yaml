@@ -11,6 +11,9 @@
     state: present
     shell: /bin/bash
   register: user_created
+  vars:
+    # `ansible.builtin.user` loads libc via ctypes, the static standalone Python cannot
+    ansible_python_interpreter: /usr/bin/python3
 
 - name: create user in copr database
   ansible.builtin.command: >
